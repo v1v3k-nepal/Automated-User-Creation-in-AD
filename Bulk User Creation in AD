@@ -1,0 +1,25 @@
+Import-Module ActiveDirectory
+$ADUsers = Import-Csv .\Desktop\UserList.csv
+
+foreach($User in $ADUsers){
+        
+        $Username = $User.username
+        $Password = $User.password
+        $SecurePass = ConvertTo-SecureString $Password -AsPlainText -Force
+        $FirstName = $User.firstname
+        $LastName = $User.lastname
+        $Department = $User.department
+        $Email = $User.email
+        $OU = $User.org_unit
+        $JobTitle = $User.designation
+      
+
+        
+        if(Get-ADUser -Filter {SamAccountName -eq $Username}){
+                    Write-Warning "User $Username already exists in the Active Directory"
+        }
+
+        else{
+            New-ADUser -SamAccountName $Username -UserPrincipalName $Username@companyname.local -Name $FirstName $LastName -GivenName $FirstName -Surname $LastName -Title $JobTitle -EmailAddress $Email -Department $Department -Path $OrgUnit -Enabled $true -AccountPassword $SecurePass -ChangePasswordAtLogon $true
+        }
+}
